@@ -110,6 +110,13 @@ config BCMDHD_FW_PATH
 	---help---
 	  Path to the firmware file.
 
+config BCMDHD_CLM_PATH
+	depends on BROADCOM_WIFI
+	string "CLM path"
+	default "/etc/wifi/bcmdhd_clm.blob"
+	---help---
+	  Path to the clm file.
+
 config BCMDHD_NVRAM_PATH
 	depends on BROADCOM_WIFI
 	string "NVRAM path"

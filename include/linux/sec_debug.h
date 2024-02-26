@@ -220,7 +220,11 @@ static inline void sec_debug_EMFILE_error_proc(void) {}
 #ifdef CONFIG_SEC_SSR_DEBUG_LEVEL_CHK
 extern int sec_debug_is_enabled_for_ssr(void);
 #else
-static inline int sec_debug_is_enabled_for_ssr(void) { return 0; }
+#ifdef CONFIG_SEC_DEBUG_FORCE_ENABLE_HACK
+static inline int sec_debug_is_enabled_for_ssr(void) { return 1; }
+#else
+static inline int sec_debug_is_enabled_for_ssr(void) { return 1; }
+#endif
 #endif /* CONFIG_SEC_SSR_DEBUG_LEVEL_CHK */
 
 /* for sec debug level */

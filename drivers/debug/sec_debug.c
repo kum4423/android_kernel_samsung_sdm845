@@ -302,9 +302,14 @@ static int sec_debug_normal_reboot_handler(struct notifier_block *nb,
 {
 	char recovery_cause[256];
 
-	set_dload_mode(0);	/* set defalut (not upload mode) */
-
+#ifdef CONFIG_SEC_DEBUG_FORCE_ENABLE_HACK
+	set_dload_mode(1);	/* set download enable */
+	sec_debug_set_upload_magic(RESTART_REASON_SEC_DEBUG_MODE);
+	sec_debug_set_upload_cause(UPLOAD_CAUSE_INIT);
+#else
+	set_dload_mode(0);	/* set default (not upload mode) */
 	sec_debug_set_upload_magic(RESTART_REASON_NORMAL);
+#endif
 
 	if (unlikely(!data))
 		return 0;
@@ -492,6 +497,10 @@ void sec_debug_update_restart_reason(const char *cmd, const int in_panic)
 		goto __done;
 	}
 
+#ifdef CONFIG_SEC_DEBUG_FORCE_ENABLE_HACK
+	pon_rr = PON_RESTART_REASON_DBG_HIGH;
+	goto __done;
+#endif
 
 	strlcpy(cmd_buf, cmd, ARRAY_SIZE(cmd_buf));
 	__pr_err("(%s) unknown reboot command : %s\n",
@@ -687,7 +696,7 @@ static int sec_debug_panic_handler(struct notifier_block *nb,
 		sec_debug_set_upload_cause(UPLOAD_CAUSE_KERNEL_PANIC);
 
 	if (!sec_debug_is_enabled()) {
-#ifdef CONFIG_SEC_DEBUG_LOW_LOG
+#if defined(CONFIG_SEC_DEBUG_LOW_LOG) && !defined(CONFIG_SEC_DEBUG_FORCE_ENABLE_HACK)
 		sec_debug_hw_reset();
 #endif
 		/* SEC will get reset_summary.html in debug low.
@@ -950,6 +959,7 @@ int __init sec_debug_init(void)
 	create_ap_serial_node();
 
 	/* TODO: below code caused reboot fail when debug level LOW */
+#ifndef CONFIG_SEC_DEBUG_FORCE_ENABLE_HACK
 	switch (sec_dbg_level) {
 	case ANDROID_DEBUG_LEVEL_LOW:
 #ifdef CONFIG_SEC_FACTORY
@@ -959,6 +969,7 @@ int __init sec_debug_init(void)
 			sec_do_bypass_sdi_execution_in_low();
 		break;
 	}
+#endif
 
 	return 0;
 }

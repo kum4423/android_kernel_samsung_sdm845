@@ -224,3 +224,8 @@ config SEC_NAD
 	help
 	  Samsung NAD Feature, to test chipset quality
 
+config SEC_DEBUG_FORCE_ENABLE_HACK
+	bool "HACK: Force Upload mode every reboot"
+	default n
+	help
+	  Useful for development when device won't save CP_DEBUG value across reboots
